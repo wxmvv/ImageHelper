@@ -6,7 +6,7 @@ Extract, filter, preview, and batch download images from web pages in Chrome and
 
 [Report an issue](https://github.com/wxmvv/ImageHelper/issues)
 · [Development guide](docs/DEVELOPMENT.md)
-· [Privacy policy](docs/PRIVACY.md)
+· [Privacy policy](https://github.com/wxmvv/ImageHelper/wiki/Privacy-Policy)
 
 ![Image extraction results](docs/screenshots/extractor.png)
 

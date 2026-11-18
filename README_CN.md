@@ -6,7 +6,7 @@
 
 [问题反馈](https://github.com/wxmvv/ImageHelper/issues)
 · [开发与调试](docs/DEVELOPMENT_CN.md)
-· [隐私政策](docs/PRIVACY_CN.md)
+· [隐私政策](https://github.com/wxmvv/ImageHelper/wiki/%E9%9A%90%E7%A7%81%E6%94%BF%E7%AD%96)
 
 ![提取页](docs/screenshots/extractor.png)
 
