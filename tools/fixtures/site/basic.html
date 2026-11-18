@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <title>ImageHelper Fixture — static page</title>
+    <meta property="og:image" content="/img/wide-1200x800.png" />
+    <link rel="icon" href="/img/small-128.png" />
+    <style>
+      body {
+        font:
+          14px -apple-system,
+          sans-serif;
+        margin: 0;
+        padding: 24px;
+        background: #0d0f12;
+        color: #e6e9ee;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+      .cell {
+        background: #15181d;
+        padding: 8px;
+        border-radius: 8px;
+      }
+      .bg-stylesheet {
+        height: 160px;
+        background-image: url('/img/photo-400x300.webp');
+        background-size: cover;
+      }
+      .bg-pseudo::before {
+        content: '';
+        display: block;
+        height: 72px;
+        background: url('/img/circle.png') no-repeat center / contain;
+      }
+      img {
+        max-width: 100%;
+        display: block;
+      }
+      .gone {
+        display: none;
+      }
+      .row {
+        margin-top: 16px;
+      }
+      button {
+        padding: 6px 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>静态图片样例</h1>
+
+    <div class="grid">
+      <div class="cell"><img src="/img/big-512.png" alt="512" /></div>
+      <div class="cell"><img src="/img/small-128.png" alt="128" /></div>
+      <div class="cell">
+        <img
+          src="/img/small-128.png"
+          srcset="/img/small-128.png 128w, /img/big-512.png 512w"
+          sizes="200px"
+          alt="srcset"
+        />
+      </div>
+      <div class="cell">
+        <picture>
+          <source srcset="/img/photo-400x300.webp" type="image/webp" />
+          <img src="/img/photo-300x200.jpg" alt="picture" />
+        </picture>
+      </div>
+      <div class="cell bg-stylesheet">stylesheet background</div>
+      <div class="cell" style="height: 160px; background: #222 url('/img/tiny-64.gif') repeat">
+        inline style background
+      </div>
+      <div class="cell bg-pseudo">pseudo element</div>
+      <div class="cell">
+        <svg width="120" height="120"><image href="/img/circle.png" width="120" height="120" /></svg>
+      </div>
+      <div class="cell"><video poster="/img/photo-640x480.png" width="220" height="120"></video></div>
+      <div class="cell"><img data-src="/img/photo-640x480.png" alt="lazy data-src" /></div>
+      <div class="cell"><img src="/img/dot-10.png" alt="tiny 10px" /></div>
+      <div class="cell"><a href="/img/wide-1200x800.png">link to a big image</a></div>
+    </div>
+
+    <img class="gone" src="/img/photo-300x200.jpg" alt="hidden" />
+
+    <div id="shadow-host" class="row"></div>
+
+    <div class="row">
+      <button id="load-dynamic">Load dynamic image</button>
+      <button id="load-fetch">Fetch JSON with image urls</button>
+    </div>
+
+    <script>
+      const host = document.getElementById('shadow-host');
+      const shadow = host.attachShadow({ mode: 'open' });
+      shadow.innerHTML =
+        '<style>img{display:block;width:140px}</style><img src="/img/small-128.png?shadow=1" alt="in shadow dom">';
+
+      document.getElementById('load-dynamic').addEventListener('click', () => {
+        const img = new Image();
+        img.src = '/img/big-512.png?dynamic=1';
+        img.width = 160;
+        document.body.appendChild(img);
+      });
+
+      document.getElementById('load-fetch').addEventListener('click', async () => {
+        const res = await fetch('/api/images.json');
+        const json = await res.json();
+        console.log('fetched', json.items.length);
+      });
+    </script>
+  </body>
+</html>

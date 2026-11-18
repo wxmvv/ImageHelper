@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <title>ImageHelper Fixture — lazy page</title>
+    <style>
+      body {
+        font:
+          14px -apple-system,
+          sans-serif;
+        margin: 0;
+        padding: 24px;
+        background: #0d0f12;
+        color: #e6e9ee;
+      }
+      .spacer {
+        height: 900px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6a7280;
+      }
+      .cell {
+        margin: 16px 0;
+        background: #15181d;
+        padding: 8px;
+        border-radius: 8px;
+      }
+      img {
+        max-width: 100%;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>懒加载样例</h1>
+    <div class="spacer">向下滚动（或使用「自动滚动」）后图片才会加载 ↓</div>
+
+    <div class="cell"><img data-lazy="/img/big-512.png" alt="lazy 1" /></div>
+    <div class="spacer">继续向下</div>
+    <div class="cell"><img data-lazy="/img/photo-640x480.png" alt="lazy 2" /></div>
+    <div class="spacer">继续向下</div>
+    <div class="cell"><img data-lazy="/img/wide-1200x800.png" alt="lazy 3" /></div>
+    <div class="spacer">到底了</div>
+
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const img = entry.target;
+            if (img.dataset.lazy) {
+              img.src = img.dataset.lazy;
+              delete img.dataset.lazy;
+            }
+            observer.unobserve(img);
+          }
+        },
+        { rootMargin: '200px' },
+      );
+      document.querySelectorAll('img[data-lazy]').forEach((img) => observer.observe(img));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,121 @@
+/* Design tokens. Every page imports this first; no other file may hard-code colors. */
+
+:root {
+  color-scheme: dark;
+
+  --ih-font:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    sans-serif;
+  --ih-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --ih-overlay: rgba(0, 0, 0, 0.92);
+
+  /* Fixed image surfaces keep contrast independent of the page theme. */
+  --ih-viewer-bg: rgba(6, 8, 11, 0.972);
+  --ih-image-fg: #fff;
+  --ih-image-muted: rgba(255, 255, 255, 0.72);
+  --ih-image-control: rgba(255, 255, 255, 0.12);
+  --ih-image-control-hover: rgba(255, 255, 255, 0.22);
+  --ih-image-pill: rgba(255, 255, 255, 0.08);
+  --ih-image-border: rgba(255, 255, 255, 0.4);
+  --ih-image-check: rgba(0, 0, 0, 0.45);
+  --ih-image-actions: rgba(12, 14, 18, 0.72);
+  --ih-image-selected: rgba(76, 141, 255, 0.14);
+
+  /* surfaces */
+  --ih-bg: #0d0f12;
+  --ih-bg-sunken: #090b0e;
+  --ih-bg-elev: #15181d;
+  --ih-bg-hover: #1b1f26;
+  --ih-bg-active: #22272f;
+  --ih-border: #252a32;
+  --ih-border-strong: #343b45;
+
+  /* text */
+  --ih-fg: #e7eaf0;
+  --ih-fg-muted: #98a2b3;
+  --ih-fg-subtle: #6a7280;
+  --ih-fg-inverse: #0b0d10;
+
+  /* accent + status */
+  --ih-accent: #4c8dff;
+  --ih-accent-strong: #3b7bf0;
+  --ih-accent-fg: #ffffff;
+  --ih-accent-soft: rgba(76, 141, 255, 0.14);
+  --ih-ok: #34d399;
+  --ih-warn: #fbbf24;
+  --ih-danger: #f87171;
+  --ih-danger-soft: rgba(248, 113, 113, 0.14);
+
+  /* shape + rhythm */
+  --ih-radius-lg: 14px;
+  --ih-radius: 10px;
+  --ih-radius-sm: 7px;
+  --ih-radius-xs: 5px;
+  --ih-space-1: 4px;
+  --ih-space-2: 8px;
+  --ih-space-3: 12px;
+  --ih-space-4: 16px;
+  --ih-space-5: 24px;
+  --ih-space-6: 32px;
+
+  /* elevation + motion */
+  --ih-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --ih-shadow-2: 0 12px 32px -12px rgba(0, 0, 0, 0.65);
+  --ih-shadow-pop: 0 20px 48px -16px rgba(0, 0, 0, 0.8);
+  --ih-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --ih-dur: 140ms;
+
+  /* layout */
+  --ih-header-h: 58px;
+  --ih-filters-h: 46px;
+  --ih-card-h: 190px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --ih-bg: #fbfbfd;
+    --ih-bg-sunken: #f3f4f7;
+    --ih-bg-elev: #ffffff;
+    --ih-bg-hover: #f0f2f6;
+    --ih-bg-active: #e7eaf0;
+    --ih-border: #e3e6ec;
+    --ih-border-strong: #cfd4dd;
+    --ih-fg: #14161a;
+    --ih-fg-muted: #5c6472;
+    --ih-fg-subtle: #8b93a1;
+    --ih-fg-inverse: #ffffff;
+    --ih-accent: #2f6fe0;
+    --ih-accent-strong: #245ec7;
+    --ih-accent-soft: rgba(47, 111, 224, 0.1);
+    --ih-danger: #dc2626;
+    --ih-danger-soft: rgba(220, 38, 38, 0.1);
+    --ih-shadow-1: 0 1px 2px rgba(16, 24, 40, 0.08);
+    --ih-shadow-2: 0 12px 28px -14px rgba(16, 24, 40, 0.24);
+    --ih-shadow-pop: 0 24px 48px -20px rgba(16, 24, 40, 0.32);
+  }
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --ih-bg: #fbfbfd;
+  --ih-bg-sunken: #f3f4f7;
+  --ih-bg-elev: #ffffff;
+  --ih-bg-hover: #f0f2f6;
+  --ih-bg-active: #e7eaf0;
+  --ih-border: #e3e6ec;
+  --ih-border-strong: #cfd4dd;
+  --ih-fg: #14161a;
+  --ih-fg-muted: #5c6472;
+  --ih-fg-subtle: #8b93a1;
+  --ih-fg-inverse: #ffffff;
+  --ih-accent: #2f6fe0;
+  --ih-accent-strong: #245ec7;
+  --ih-accent-soft: rgba(47, 111, 224, 0.1);
+  --ih-danger: #dc2626;
+  --ih-danger-soft: rgba(220, 38, 38, 0.1);
+  --ih-shadow-1: 0 1px 2px rgba(16, 24, 40, 0.08);
+  --ih-shadow-2: 0 12px 28px -14px rgba(16, 24, 40, 0.24);
+  --ih-shadow-pop: 0 24px 48px -20px rgba(16, 24, 40, 0.32);
+}

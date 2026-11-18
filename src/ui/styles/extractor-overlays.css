@@ -1,0 +1,176 @@
+.ih-selectionbar,
+.ih-progress {
+  position: fixed;
+  bottom: var(--ih-space-5);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--ih-space-2);
+  padding: var(--ih-space-3);
+  border: 1px solid var(--ih-border-strong);
+  border-radius: var(--ih-radius-lg);
+  background: var(--ih-bg-elev);
+  box-shadow: var(--ih-shadow-pop);
+  z-index: 30;
+  white-space: nowrap;
+}
+.ih-selectionbar {
+  animation: ih-rise var(--ih-dur) var(--ih-ease);
+}
+.ih-selectionbar__count {
+  padding: 0 var(--ih-space-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.ih-progress {
+  bottom: 94px;
+  z-index: 60;
+}
+.ih-progress progress {
+  width: 100px;
+  accent-color: var(--ih-accent);
+}
+.is-locked {
+  overflow: hidden;
+}
+.ih-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ih-viewer-bg);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  color: var(--ih-image-fg);
+  overflow: hidden;
+}
+/* Keeps the page showing through only as a hint while the top controls stay readable. */
+.ih-lightbox::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 104px;
+  background: linear-gradient(rgba(0, 0, 0, 0.55), transparent);
+  pointer-events: none;
+}
+.ih-lightbox__image {
+  max-width: min(92vw, 1600px);
+  max-height: 84vh;
+  border-radius: 6px;
+  box-shadow: var(--ih-shadow-pop);
+  object-fit: contain;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.ih-lightbox__image:active {
+  cursor: grabbing;
+}
+.ih-lightbox__bar {
+  position: absolute;
+  bottom: var(--ih-space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--ih-space-3);
+  padding: 8px 14px;
+  max-width: 90vw;
+  background: var(--ih-image-pill);
+  color: var(--ih-image-fg);
+  border-radius: 999px;
+}
+.ih-lightbox__info {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.ih-lightbox__url {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 34ch;
+  font: 11.5px var(--ih-mono);
+  color: var(--ih-image-muted);
+  opacity: 0.62;
+}
+.ih-lightbox__counter {
+  position: absolute;
+  left: 24px;
+  top: 24px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--ih-image-control);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  z-index: 2;
+}
+.ih-lightbox .ih-button {
+  border: 0;
+  border-radius: 50%;
+  background: var(--ih-image-control);
+  color: var(--ih-image-fg);
+}
+.ih-lightbox .ih-button:hover {
+  background: var(--ih-image-control-hover);
+}
+.ih-lightbox__actions {
+  display: flex;
+  gap: 2px;
+  padding-left: 12px;
+  border-left: 1px solid var(--ih-image-control-hover);
+}
+.ih-lightbox__actions .ih-button {
+  background: transparent;
+}
+.ih-lightbox .ih-lightbox__close {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  right: 24px;
+  top: 24px;
+}
+.ih-lightbox .ih-lightbox__prev,
+.ih-lightbox .ih-lightbox__next {
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  transform: translateY(-50%);
+}
+.ih-lightbox__prev svg {
+  transform: rotate(90deg);
+}
+.ih-lightbox__next svg {
+  transform: rotate(-90deg);
+}
+.ih-lightbox__prev {
+  left: 24px;
+}
+.ih-lightbox__next {
+  right: 24px;
+}
+.ih-lightbox .ih-button:disabled {
+  visibility: hidden;
+}
+@keyframes ih-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@media (max-width: 1000px) {
+  .ih-selectionbar {
+    max-width: 96vw;
+    overflow-x: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ih-selectionbar {
+    animation: none;
+  }
+}

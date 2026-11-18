@@ -1,0 +1,8 @@
+.ref/
+.tools/
+node_modules/
+dist/
+safari/build/
+xcuserdata/
+*.zip
+.DS_Store

@@ -1,0 +1,8 @@
+{
+  "items": [
+    { "id": 1, "cover": "/img/photo-300x200.jpg" },
+    { "id": 2, "cover": "/img/photo-640x480.png" },
+    { "id": 3, "cover": "https:\/\/example.com\/remote\/poster.jpg?w=800" },
+    { "id": 4, "cover": "/img/tiny-64.gif" }
+  ]
+}
