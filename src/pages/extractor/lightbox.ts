@@ -3,6 +3,7 @@ import type { ImageRecord } from '../../core/types.ts';
 import { t } from '../../platform/i18n.ts';
 import { delegate, h, on } from '../../ui/dom.ts';
 import { copyLinks, iconButton, openImage } from './actions.ts';
+import { bindLightboxGestures } from './lightbox-gestures.ts';
 import { store } from './state.ts';
 export function createLightbox(root: HTMLElement, download: (images: ImageRecord[]) => void) {
   const img = h('img', {
@@ -18,6 +19,10 @@ export function createLightbox(root: HTMLElement, download: (images: ImageRecord
   next.classList.add('ih-lightbox__next');
   const closeButton = iconButton('extClose', 'close', 'close');
   closeButton.classList.add('ih-lightbox__close');
+  const zoomOut = iconButton('extZoomOut', 'zoom-out', 'zoom-out');
+  const zoomIn = iconButton('extZoomIn', 'zoom-in', 'zoom-in');
+  zoomOut.classList.add('ih-lightbox__zoom');
+  zoomIn.classList.add('ih-lightbox__zoom');
   const bar = h(
     'div',
     { class: 'ih-lightbox__bar' },
@@ -26,6 +31,8 @@ export function createLightbox(root: HTMLElement, download: (images: ImageRecord
     h(
       'div',
       { class: 'ih-lightbox__actions' },
+      zoomOut,
+      zoomIn,
       iconButton('extDownloadOne', 'download', 'download'),
       iconButton('extCopyLink', 'copy', 'copy'),
       iconButton('extOpenTab', 'open', 'external'),
@@ -35,15 +42,8 @@ export function createLightbox(root: HTMLElement, download: (images: ImageRecord
   root.setAttribute('tabindex', '-1');
   root.replaceChildren(img, prev, next, counter, closeButton, bar);
   let id = '';
-  let scale = 1;
-  let x = 0;
-  let y = 0;
-  let drag: { x: number; y: number; px: number; py: number } | undefined;
   let focus: HTMLElement | null = null;
   const current = (): ImageRecord | undefined => store.derived().visible.find((i) => i.id === id);
-  const transform = (): void => {
-    img.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
-  };
   const render = (): void => {
     const record = current();
     if (!record) {
@@ -60,15 +60,13 @@ export function createLightbox(root: HTMLElement, download: (images: ImageRecord
     info.textContent = `${counter.textContent} · ${formatDimensions(record.width, record.height)} · ${formatBytes(record.bytes)} · ${record.ext}`;
     url.textContent = record.url.length > 44 ? record.url.slice(0, 43) + '…' : record.url;
     url.title = record.url;
-    scale = 1;
-    x = y = 0;
-    transform();
+    gestures.reset();
   };
   const close = (): void => {
     root.hidden = true;
     document.body.classList.remove('is-locked');
     img.removeAttribute('src');
-    drag = undefined;
+    gestures.reset();
     focus?.focus();
   };
   const step = (delta: number): void => {
@@ -77,12 +75,15 @@ export function createLightbox(root: HTMLElement, download: (images: ImageRecord
     id = images[Math.max(0, Math.min(images.length - 1, index + delta))]?.id ?? '';
     render();
   };
+  const gestures = bindLightboxGestures(root, img, step);
   const off = [
     delegate(root, '[data-action]', 'click', (_e, el) => {
       const action = el.dataset.action;
       if (action === 'close') close();
       if (action === 'prev') step(-1);
       if (action === 'next') step(1);
+      if (action === 'zoom-out') gestures.zoomBy(1 / 1.5);
+      if (action === 'zoom-in') gestures.zoomBy(1.5);
       const record = current();
       if (!record) return;
       if (action === 'download') download([record]);
@@ -92,45 +93,6 @@ export function createLightbox(root: HTMLElement, download: (images: ImageRecord
     on(root, 'click', (e) => {
       if (e.target === root) close();
     }),
-    on(
-      root,
-      'wheel',
-      (e) => {
-        e.preventDefault();
-        const event = e as WheelEvent;
-        const nextScale = Math.max(0.2, Math.min(8, scale * Math.exp(-event.deltaY * 0.002)));
-        const px = event.clientX - innerWidth / 2;
-        const py = event.clientY - innerHeight / 2;
-        x = px - ((px - x) * nextScale) / scale;
-        y = py - ((py - y) * nextScale) / scale;
-        scale = nextScale;
-        transform();
-      },
-      { passive: false },
-    ),
-    on(img, 'dblclick', () => {
-      scale = scale === 1 ? 2 : 1;
-      x = y = 0;
-      transform();
-    }),
-    on(img, 'pointerdown', (e) => {
-      const event = e as PointerEvent;
-      drag = { x, y, px: event.clientX, py: event.clientY };
-      img.setPointerCapture(event.pointerId);
-    }),
-    on(img, 'pointermove', (e) => {
-      if (drag) {
-        x = drag.x + (e as PointerEvent).clientX - drag.px;
-        y = drag.y + (e as PointerEvent).clientY - drag.py;
-        transform();
-      }
-    }),
-    on(img, 'pointerup', () => {
-      drag = undefined;
-    }),
-    on(img, 'pointercancel', () => {
-      drag = undefined;
-    }),
     on(document, 'keydown', (e) => {
       if (root.hidden) return;
       const event = e as KeyboardEvent;
@@ -139,9 +101,12 @@ export function createLightbox(root: HTMLElement, download: (images: ImageRecord
       if (event.key === 'ArrowRight') step(1);
       if (event.key === 'Escape') close();
       if (event.key === 'Tab') {
-        const controls = [...root.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
+        const controls = [...root.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')].filter(
+          (button) => button.getClientRects().length,
+        );
         const index = controls.indexOf(document.activeElement as HTMLButtonElement);
-        controls[(index + (event.shiftKey ? -1 : 1) + controls.length) % controls.length]?.focus();
+        const start = index < 0 && event.shiftKey ? 0 : index;
+        controls[(start + (event.shiftKey ? -1 : 1) + controls.length) % controls.length]?.focus();
       }
     }),
     store.subscribe(() => {
@@ -161,6 +126,7 @@ export function createLightbox(root: HTMLElement, download: (images: ImageRecord
     isOpen: (): boolean => !root.hidden,
     dispose(): void {
       close();
+      gestures.dispose();
       off.forEach((fn) => fn());
     },
   };

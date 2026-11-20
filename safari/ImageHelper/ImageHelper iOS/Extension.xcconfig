@@ -1,0 +1,7 @@
+#include "Common.xcconfig"
+
+INFOPLIST_FILE = ImageHelper Extension/Info.plist
+INFOPLIST_KEY_CFBundleDisplayName = ImageHelper
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @executable_path/../../Frameworks
+PRODUCT_BUNDLE_IDENTIFIER = $(IMAGEHELPER_BUNDLE_ID).Extension
+SKIP_INSTALL = YES

@@ -69,10 +69,17 @@ export class DownloadEngine {
   private readonly pageUrl: string;
   private readonly pageTitle: string;
   private readonly onProgress: (p: DownloadProgress) => void;
-  constructor(pageUrl: string, onProgress: (p: DownloadProgress) => void, pageTitle = '') {
+  private readonly saveFile?: (blob: Blob, fileName: string) => void | Promise<void>;
+  constructor(
+    pageUrl: string,
+    onProgress: (p: DownloadProgress) => void,
+    pageTitle = '',
+    saveFile?: (blob: Blob, fileName: string) => void | Promise<void>,
+  ) {
     this.pageUrl = pageUrl;
     this.pageTitle = pageTitle;
     this.onProgress = onProgress;
+    this.saveFile = saveFile;
   }
   cancel(): void {
     this.controller.abort();
@@ -84,6 +91,7 @@ export class DownloadEngine {
     hostFolders = false,
   ): Promise<DownloadResult> {
     const signal = this.controller.signal;
+    const save = this.saveFile ?? saveBlob;
     const result: DownloadResult = { ok: [], failed: [] };
     // Keep the port readable (127.0.0.1:8123 → 127.0.0.1-8123) instead of gluing digits together.
     const host = /^https?:/.test(this.pageUrl) ? new URL(this.pageUrl).host.replace(/:/g, '-') : 'images';
@@ -106,7 +114,7 @@ export class DownloadEngine {
     report('fetching');
     if (mode === 'files') {
       // One-item requests keep cancellation effective between background downloads.
-      let unsupported = false;
+      let unsupported = this.saveFile !== undefined;
       for (const item of items) {
         if (signal.aborted) break;
         try {
@@ -128,7 +136,7 @@ export class DownloadEngine {
           if (unsupported) {
             const blob = await fetchImage(item.url, item.referer, signal);
             signal.throwIfAborted();
-            await saveBlob(blob, alignExtension(item.fileName, blob.type));
+            await save(blob, alignExtension(item.fileName, blob.type));
             result.ok.push(item.url);
           }
           report('fetching', item.url);
@@ -172,7 +180,7 @@ export class DownloadEngine {
       const blob = await zip.finish();
       if (!signal.aborted) {
         report('saving');
-        await saveBlob(blob, folder + '.zip');
+        await save(blob, folder + '.zip');
       }
     }
     return result;

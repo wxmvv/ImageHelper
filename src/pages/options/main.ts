@@ -1,6 +1,7 @@
 import { DEFAULT_SETTINGS } from '../../core/settings.ts';
 import type { Settings } from '../../core/types.ts';
 import { t } from '../../platform/i18n.ts';
+import { isIOS } from '../../platform/ios.ts';
 import { applyPageSettings, watchSettings } from '../../platform/page-settings.ts';
 import { broadcast } from '../../platform/rpc.ts';
 import { readSettings, writeSettings } from '../../platform/storage.ts';
@@ -72,13 +73,15 @@ async function bootstrap(): Promise<void> {
           ),
           card(
             'optDownload',
-            segmented(
-              'downloadMode',
-              'optDownloadMode',
-              ['zip', 'files'],
-              ['optModeZip', 'optModeFiles'],
-              settings.downloadMode,
-            ),
+            isIOS()
+              ? h('p', { class: 'ih-options__hint', text: t('optMobileDownload') })
+              : segmented(
+                  'downloadMode',
+                  'optDownloadMode',
+                  ['zip', 'files'],
+                  ['optModeZip', 'optModeFiles'],
+                  settings.downloadMode,
+                ),
             field(
               'optNaming',
               h('input', {
@@ -115,6 +118,22 @@ async function bootstrap(): Promise<void> {
             'optAbout',
             h('p', { text: t('extBrand') + ' ' + version }),
             h('p', { text: t('optAboutText') }),
+            h(
+              'p',
+              {},
+              h('a', {
+                class: 'ih-button ih-button--ghost',
+                attr: {
+                  href:
+                    document.documentElement.lang === 'zh-CN'
+                      ? 'https://github.com/wxmvv/ImageHelper/wiki/%E9%9A%90%E7%A7%81%E6%94%BF%E7%AD%96'
+                      : 'https://github.com/wxmvv/ImageHelper/wiki/Privacy-Policy',
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                },
+                text: t('optPrivacyPolicy'),
+              }),
+            ),
             h('button', {
               class: 'ih-button ih-button--danger',
               data: { action: 'reset' },

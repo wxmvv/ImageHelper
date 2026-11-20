@@ -9,6 +9,8 @@ export function createCard(image: ImageRecord): HTMLElement {
     attr: { alt: image.alt ?? '', loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer' },
     data: { src: image.url },
   });
+  const preview = iconButton('extPreview', 'preview', 'eye');
+  preview.classList.add('ih-card__preview');
   const card = h(
     'article',
     { class: 'ih-card', attr: { tabindex: 0, 'aria-label': image.alt || image.url }, data: { id: image.id } },
@@ -31,6 +33,7 @@ export function createCard(image: ImageRecord): HTMLElement {
     h(
       'div',
       { class: 'ih-card__actions' },
+      preview,
       iconButton('extDownloadOne', 'download', 'download'),
       iconButton('extCopyLink', 'copy', 'copy'),
       iconButton('extOpenTab', 'open', 'external'),

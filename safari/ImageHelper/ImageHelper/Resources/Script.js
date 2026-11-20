@@ -20,3 +20,15 @@ function openPreferences() {
 }
 
 document.querySelector("button.open-preferences").addEventListener("click", openPreferences);
+
+const strings = navigator.language.startsWith("zh")
+    ? { privacyPolicy: "隐私政策", privacyPage: "%E9%9A%90%E7%A7%81%E6%94%BF%E7%AD%96" }
+    : { privacyPolicy: "Privacy policy", privacyPage: "Privacy-Policy" };
+
+function t(key) {
+    return strings[key];
+}
+
+const privacyLink = document.querySelector("a.privacy-policy");
+privacyLink.textContent = t("privacyPolicy");
+privacyLink.href = `https://github.com/wxmvv/ImageHelper/wiki/${strings.privacyPage}`;

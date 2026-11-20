@@ -59,14 +59,18 @@ async function bootstrap(): Promise<void> {
       if (token === commandToken) store.patch({ scanning: false, autoScrolling: false });
     }
   };
+  const header = bindHeader(layout.header, layout.filters, layout.selection, downloads.run, (type) => {
+    void command(type);
+  });
   const off = [
-    bindHeader(layout.header, layout.selection, downloads.run, (type) => {
-      void command(type);
-    }),
+    header.dispose,
     bindGrid(layout.grid, layout.loaded, settings, lightbox.open, downloads.run, resetFilters, () => {
       void command('extract:rescan');
     }),
-    bindShortcuts(lightbox.open, lightbox.isOpen, filters.search),
+    bindShortcuts(lightbox.open, lightbox.isOpen, () => {
+      header.showFilters(true);
+      filters.search.focus();
+    }),
     bindHashing(),
   ];
   // Subscribe before the snapshot request so records arriving during bootstrap are retained.

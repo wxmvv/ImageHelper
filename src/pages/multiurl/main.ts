@@ -3,7 +3,9 @@ import type { MultiRun } from '../../core/messages.ts';
 import type { ImageRecord } from '../../core/types.ts';
 import { DownloadEngine } from '../../downloads/engine.ts';
 import { t } from '../../platform/i18n.ts';
+import { isIOS } from '../../platform/ios.ts';
 import { applyPageSettings, watchSettings } from '../../platform/page-settings.ts';
+import { createPreparedDownload } from '../../platform/prepared-download.ts';
 import { onRuntimeMessage, sendToBackground } from '../../platform/rpc.ts';
 import { readSettings } from '../../platform/storage.ts';
 import { delegate, h } from '../../ui/dom.ts';
@@ -17,13 +19,15 @@ async function bootstrap(): Promise<void> {
   let draft = '';
   let starting = false;
   let engine: DownloadEngine | undefined;
+  const prepared = isIOS() ? createPreparedDownload() : undefined;
   let downloadText = '';
-  let imageCount = 0;
+  let records: ImageRecord[] = [];
   let closed = false;
   const root = document.getElementById('app')!;
   const render = (): void => {
     draft = root.querySelector<HTMLTextAreaElement>('textarea')?.value ?? draft;
     applyPageSettings(settings);
+    if (prepared) prepared.control.textContent = t('extSaveFile');
     document.title = t('multiTitle');
     const running = !!run && run.finishedAt === undefined;
     const total = run?.items.length ?? 0;
@@ -102,30 +106,40 @@ async function bootstrap(): Promise<void> {
           { class: 'ih-multi__summary' },
           h('span', {
             attr: { role: 'status', id: 'summary' },
-            text: t('multiFound', { count: imageCount }),
+            text: t('multiFound', { count: records.length }),
           }),
           h(
             'div',
             { class: 'ih-multi__summary-actions' },
+            prepared?.control.hidden === false
+              ? prepared.control
+              : h(
+                  'button',
+                  {
+                    class: 'ih-button ih-button--primary',
+                    data: { action: 'download' },
+                    attr: { disabled: !records.length || running || !!engine },
+                  },
+                  icon('download'),
+                  t('multiDownload'),
+                ),
             h(
               'button',
               {
-                class: 'ih-button ih-button--primary',
-                data: { action: 'download' },
-                attr: { disabled: !imageCount || running || !!engine },
+                class: 'ih-button',
+                data: { action: 'copy' },
+                attr: { disabled: !records.length || running },
               },
-              icon('download'),
-              t('multiDownload'),
-            ),
-            h(
-              'button',
-              { class: 'ih-button', data: { action: 'copy' }, attr: { disabled: !imageCount || running } },
               icon('copy'),
               t('extCopyLinks'),
             ),
           ),
         ),
-        h('p', { class: 'ih-multi__progress', attr: { role: 'status' }, text: downloadText }),
+        h('p', {
+          class: 'ih-multi__progress',
+          attr: { role: 'status' },
+          text: prepared?.control.hidden === false ? t('extDownloadReady') : downloadText,
+        }),
       ),
     );
   };
@@ -135,7 +149,7 @@ async function bootstrap(): Promise<void> {
     if (!runId || closed) return;
     try {
       run = await request<MultiRun>('multi:status');
-      imageCount = (await request<{ images: ImageRecord[] }>('multi:images')).images.length;
+      records = (await request<{ images: ImageRecord[] }>('multi:images')).images;
       if (!closed) render();
     } catch {
       if (!closed) {
@@ -144,8 +158,6 @@ async function bootstrap(): Promise<void> {
       }
     }
   };
-  const images = async (): Promise<ImageRecord[]> =>
-    (await request<{ images: ImageRecord[] }>('multi:images')).images;
   const action = async (el: HTMLElement): Promise<void> => {
     try {
       if (el.dataset.action === 'start') {
@@ -173,6 +185,7 @@ async function bootstrap(): Promise<void> {
           return;
         }
         starting = true;
+        prepared?.clear();
         render();
         try {
           const reply = await request<{ runId: string }>('multi:start', { urls });
@@ -194,14 +207,13 @@ async function bootstrap(): Promise<void> {
       }
       if (el.dataset.action === 'copy') {
         try {
-          await navigator.clipboard.writeText((await images()).map((i) => i.url).join('\n'));
+          await navigator.clipboard.writeText(records.map((i) => i.url).join('\n'));
           toast(t('extCopied'));
         } catch {
           toast(t('extCopyFailed'));
         }
       }
-      if (el.dataset.action === 'download' && !engine) {
-        const records = await images();
+      if (el.dataset.action === 'download' && !engine && records.length) {
         engine = new DownloadEngine(
           '',
           (p) => {
@@ -210,15 +222,17 @@ async function bootstrap(): Promise<void> {
             if (text) text.textContent = downloadText;
           },
           t('multiTitle'),
+          prepared?.save,
         );
         render();
         try {
           const result = await engine.run(records, 'zip', settings.namingTemplate, true);
-          toast(
-            t(result.failed.length ? 'extDownloadFailed' : 'extDownloadDone', {
-              count: result.failed.length || result.ok.length,
-            }),
-          );
+          if (result.failed.length || !prepared)
+            toast(
+              t(result.failed.length ? 'extDownloadFailed' : 'extDownloadDone', {
+                count: result.failed.length || result.ok.length,
+              }),
+            );
         } finally {
           engine = undefined;
           downloadText = '';
@@ -255,6 +269,7 @@ async function bootstrap(): Promise<void> {
       clearInterval(timer);
       off.forEach((fn) => fn());
       engine?.cancel();
+      prepared?.dispose();
     },
     { once: true },
   );

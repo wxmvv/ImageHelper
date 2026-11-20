@@ -4,7 +4,7 @@ import { store } from './state.ts';
 export function bindShortcuts(
   preview: (id: string) => void,
   isOpen: () => boolean,
-  search: HTMLInputElement,
+  focusSearch: () => void,
 ): () => void {
   return on(document, 'keydown', (e) => {
     const event = e as KeyboardEvent;
@@ -24,7 +24,7 @@ export function bindShortcuts(
     if (key === 'i') invertSelection(visible);
     if (key === 'escape') clearSelection();
     if (key === 'delete' || key === 'backspace') removeSelected();
-    if (key === '/') search.focus();
+    if (key === '/') focusSearch();
     if (key === 'v') {
       const focused = document.activeElement?.closest<HTMLElement>('.ih-card')?.dataset.id;
       const id = visible.find((i) => store.get().selected.has(i.id))?.id ?? focused ?? visible[0]?.id;

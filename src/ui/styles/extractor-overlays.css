@@ -123,6 +123,9 @@
 .ih-lightbox__actions .ih-button {
   background: transparent;
 }
+.ih-lightbox .ih-lightbox__zoom {
+  display: none;
+}
 .ih-lightbox .ih-lightbox__close {
   position: absolute;
   width: 36px;

@@ -1,14 +1,9 @@
 {
   "default-configuration": "Release",
-  "configurations": [
-    "Debug",
-    "Release",
-  ],
+  "configurations": [ "Debug", "Release" ],
   "localizations": {
     "development": "en",
-    "supported": [
-      "Base",
-    ],
+    "supported": [ "Base", "zh-Hans" ],
   },
   "files": [
     {
@@ -55,6 +50,16 @@
       ],
     }, {
       "kind": "group",
+      "path": "ImageHelper iOS",
+      "children": [
+        { "path": "ImageHelperApp.swift", "target-membership": [ "ImageHelper iOS/compile-sources" ] },
+        { "path": "Assets.xcassets", "target-membership": [ "ImageHelper iOS/resources" ] },
+        { "path": "Localizable.xcstrings", "target-membership": [ "ImageHelper iOS/resources" ] },
+        { "path": "Info.plist" },
+        { "path": "Host.xcconfig" }, { "path": "Extension.xcconfig" }, { "path": "Common.xcconfig" },
+      ],
+    }, {
+      "kind": "group",
       "path": "ImageHelper Extension",
       "children": [
         {
@@ -62,25 +67,25 @@
           "path": "<PROJECT>/ImageHelper Extension",
           "name": "Resources",
           "children": [
-            { "path": "Resources/hash-worker.js", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/popup.js", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/extractor.js", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/background.js", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/popup.html", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/options.js", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/multiurl.html", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/styles", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/manifest.json", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/sniffer.js", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/page-hook.js", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/options.html", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/multiurl.js", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/_locales", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/assets", "target-membership": [ "ImageHelper Extension/resources" ] },
-            { "path": "Resources/extractor.html", "target-membership": [ "ImageHelper Extension/resources" ] },
+            { "path": "Resources/hash-worker.js", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/popup.js", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/extractor.js", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/background.js", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/popup.html", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/options.js", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/multiurl.html", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/styles", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/manifest.json", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/sniffer.js", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/page-hook.js", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/options.html", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/multiurl.js", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/_locales", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/assets", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
+            { "path": "Resources/extractor.html", "target-membership": [ "ImageHelper Extension/resources", "ImageHelper iOS Extension/resources" ] },
           ],
         },
-        { "path": "SafariWebExtensionHandler.swift", "target-membership": [ "ImageHelper Extension/compile-sources" ] },
+        { "path": "SafariWebExtensionHandler.swift", "target-membership": [ "ImageHelper Extension/compile-sources", "ImageHelper iOS Extension/compile-sources" ] },
         { "path": "Info.plist" },
       ],
     }, {
@@ -89,6 +94,8 @@
       "children": [
         { "path": "<PRODUCTS>/ImageHelper.app", "id": "C4E4771E30A030C300496178", "type": "wrapper.application", "index": false },
         { "path": "<PRODUCTS>/ImageHelper Extension.appex", "id": "C4E4773930A030C400496178", "type": "wrapper.app-extension", "index": false, "target-membership": [ { "build-phase": "ImageHelper/copy/Embed Foundation Extensions", "header-preservation": "remove-on-copy" } ] },
+        { "path": "<PRODUCTS>/ImageHelper iOS.app", "id": "D6E560B930B048F700ABC771", "type": "wrapper.application", "index": false },
+        { "path": "<PRODUCTS>/ImageHelper iOS Extension.appex", "id": "D6E560BA30B048F700ABC771", "type": "wrapper.app-extension", "index": false, "target-membership": [ { "build-phase": "ImageHelper iOS/copy/Embed Foundation Extensions", "header-preservation": "remove-on-copy" } ] },
       ],
     },
   ],
@@ -143,7 +150,7 @@
           "-framework",
           "WebKit",
         ],
-        "PRODUCT_BUNDLE_IDENTIFIER": "com.wxm.imagehelper",
+        "PRODUCT_BUNDLE_IDENTIFIER": "dev.wxmvv.ImageHelper",
         "PRODUCT_NAME": "$(TARGET_NAME)",
         "REGISTER_APP_GROUPS": "YES",
         "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
@@ -185,7 +192,7 @@
           "-framework",
           "SafariServices",
         ],
-        "PRODUCT_BUNDLE_IDENTIFIER": "com.wxm.imagehelper.Extension",
+        "PRODUCT_BUNDLE_IDENTIFIER": "dev.wxmvv.ImageHelper.Extension",
         "PRODUCT_NAME": "$(TARGET_NAME)",
         "SKIP_INSTALL": "YES",
         "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
@@ -194,6 +201,30 @@
         "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
         "SWIFT_VERSION": "5.0",
       },
+    }, {
+      "name": "ImageHelper iOS",
+      "id": "D6E560BB30B048F700ABC771",
+      "product": "Products/ImageHelper iOS.app",
+      "product-type": "application",
+      "specialized-configurations": [
+        { "name": "Debug", "file": "ImageHelper iOS/Host.xcconfig" },
+        { "name": "Release", "file": "ImageHelper iOS/Host.xcconfig" },
+      ],
+      "dependencies": [ "ImageHelper iOS Extension" ],
+      "build-phases": [
+        "compile-sources", "frameworks", "resources",
+        { "kind": "copy", "name": "Embed Foundation Extensions", "bundle-base-path": "plugins-directory" },
+      ],
+    }, {
+      "name": "ImageHelper iOS Extension",
+      "id": "D6E560BC30B048F700ABC771",
+      "product": "Products/ImageHelper iOS Extension.appex",
+      "product-type": "app-extension",
+      "specialized-configurations": [
+        { "name": "Debug", "file": "ImageHelper iOS/Extension.xcconfig" },
+        { "name": "Release", "file": "ImageHelper iOS/Extension.xcconfig" },
+      ],
+      "build-phases": [ "compile-sources", "frameworks", "resources" ],
     },
   ],
   "build-settings": {

@@ -70,6 +70,7 @@
   --ih-header-h: 58px;
   --ih-filters-h: 46px;
   --ih-card-h: 190px;
+  --ih-touch-target: 44px;
 }
 
 @media (prefers-color-scheme: light) {

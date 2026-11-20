@@ -139,3 +139,29 @@
   font-size: 11.5px;
   white-space: nowrap;
 }
+
+@media (max-width: 680px) {
+  .ih-multi {
+    padding: var(--ih-space-5) var(--ih-space-3);
+  }
+  .ih-multi th,
+  .ih-multi td {
+    padding-inline: var(--ih-space-2);
+  }
+  .ih-multi th:nth-child(2) {
+    width: 78px;
+  }
+  .ih-multi th:nth-child(3) {
+    width: 54px;
+  }
+  .ih-multi th:nth-child(4) {
+    width: 56px;
+  }
+  .ih-multi__status {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .ih-multi__summary > span {
+    flex-basis: 100%;
+  }
+}

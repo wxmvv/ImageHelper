@@ -1,5 +1,6 @@
 import type { Settings } from '../../core/types.ts';
 import { t } from '../../platform/i18n.ts';
+import { isIOS } from '../../platform/ios.ts';
 import { applyPageSettings, watchSettings } from '../../platform/page-settings.ts';
 import { sendToBackground } from '../../platform/rpc.ts';
 import { readSettings } from '../../platform/storage.ts';
@@ -28,6 +29,7 @@ async function bootstrap(): Promise<void> {
       /* Blank tabs have no host. */
     }
     const restricted = tab?.id === undefined || !/^https?:\/\//i.test(tab.url ?? '');
+    const status = isIOS() && tab?.id !== undefined && !tab.url ? 'popupAllowSite' : 'popupRestricted';
     document.title = t('extBrand');
     root.replaceChildren(
       h(
@@ -53,7 +55,7 @@ async function bootstrap(): Promise<void> {
           icon('image'),
           t(extracting ? 'popupLoading' : 'popupExtract'),
         ),
-        restricted ? h('p', { class: 'ih-popup__restricted', text: t('popupRestricted') }) : null,
+        restricted ? h('p', { class: 'ih-popup__restricted', text: t(status) }) : null,
         h(
           'nav',
           { class: 'ih-popup__links' },
@@ -119,8 +121,12 @@ async function bootstrap(): Promise<void> {
           window.close();
         }
         if (el.dataset.action === 'options') {
-          if (typeof chrome === 'undefined' || !chrome.runtime?.openOptionsPage) throw new Error();
-          await chrome.runtime.openOptionsPage();
+          if (typeof chrome === 'undefined') throw new Error();
+          if (isIOS() || !chrome.runtime?.openOptionsPage) {
+            if (!chrome.tabs?.create || !chrome.runtime?.getURL) throw new Error();
+            await chrome.tabs.create({ url: chrome.runtime.getURL('options.html') });
+            window.close();
+          } else await chrome.runtime.openOptionsPage();
         }
       } catch {
         extracting = false;

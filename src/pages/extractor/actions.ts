@@ -7,18 +7,17 @@ export function button(key: string, action: string, name?: IconName, primary = f
     'button',
     {
       class: 'ih-button' + (primary ? ' ih-button--primary' : ''),
-      attr: { type: 'button', title: t(key) },
+      attr: { type: 'button', title: t(key), 'aria-label': t(key) },
       data: { action },
     },
     name ? icon(name) : null,
-    t(key),
+    h('span', { class: 'ih-button__text', text: t(key) }),
   );
 }
 export function iconButton(key: string, action: string, name: IconName): HTMLButtonElement {
   const el = button(key, action, name);
   el.classList.add('ih-button--icon');
   el.replaceChildren(icon(name));
-  el.setAttribute('aria-label', t(key));
   return el;
 }
 export async function copyLinks(value: string): Promise<void> {

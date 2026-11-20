@@ -4,11 +4,12 @@ import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SAFARI_BUNDLE_ID } from './safari-resources.ts';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const app = path.join(root, 'safari/build/Build/Products/Debug/ImageHelper.app');
 const appex = path.join(app, 'Contents/PlugIns/ImageHelper Extension.appex');
-const extensionId = 'com.wxm.imagehelper.Extension';
+const extensionId = `${SAFARI_BUNDLE_ID}.Extension`;
 
 const checks = [];
 const record = (name, ok, detail) => {
@@ -18,6 +19,23 @@ const record = (name, ok, detail) => {
 
 record('app bundle built', existsSync(app), path.relative(root, app));
 record('appex present', existsSync(appex), path.relative(root, appex));
+
+for (const [bundle, expected] of [
+  [app, SAFARI_BUNDLE_ID],
+  [appex, extensionId],
+]) {
+  if (!existsSync(bundle)) continue;
+  try {
+    const identifier = execFileSync(
+      'plutil',
+      ['-extract', 'CFBundleIdentifier', 'raw', '-o', '-', path.join(bundle, 'Contents/Info.plist')],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+    ).trim();
+    record('bundle identifier', identifier === expected, identifier);
+  } catch (error) {
+    record('bundle identifier', false, `${path.basename(bundle)}: ${String(error).split('\n')[0]}`);
+  }
+}
 
 if (existsSync(appex)) {
   try {

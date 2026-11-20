@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
@@ -376,4 +380,26 @@ textarea {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+@media (any-pointer: coarse) {
+  .ih-button,
+  .ih-chip,
+  .ih-input,
+  .ih-select {
+    min-height: var(--ih-touch-target);
+  }
+  .ih-button--icon {
+    min-width: var(--ih-touch-target);
+  }
+  .ih-input,
+  .ih-select,
+  .ih-textarea {
+    font-size: 16px;
+  }
+  .ih-select {
+    background-position:
+      calc(100% - 14px) center,
+      calc(100% - 9px) center;
+  }
 }

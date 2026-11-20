@@ -1,6 +1,8 @@
 import { cp, lstat, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+export const SAFARI_BUNDLE_ID = 'dev.wxmvv.ImageHelper';
+
 export async function prepareSafariResources(dist: string, staging: string): Promise<void> {
   const manifest = JSON.parse(await readFile(path.join(dist, 'manifest.json'), 'utf8')) as Record<
     string,

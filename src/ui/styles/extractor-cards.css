@@ -120,6 +120,9 @@
 .ih-card__actions .ih-button:hover {
   background: var(--ih-image-control-hover);
 }
+.ih-card__actions .ih-card__preview {
+  display: none;
+}
 .ih-card:hover .ih-card__actions,
 .ih-card:focus-within .ih-card__actions {
   opacity: 1;

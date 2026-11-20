@@ -8,10 +8,11 @@ import { clearSelection, invertSelection, removeSelected, selectAll, selectedRec
 import { store } from './state.ts';
 export function bindHeader(
   root: HTMLElement,
+  filters: HTMLElement,
   selection: HTMLElement,
   download: (images: ImageRecord[]) => void,
   command: (type: string) => void,
-): () => void {
+) {
   const title = h('h1');
   const url = h('a', {
     class: 'ih-header__url',
@@ -22,29 +23,39 @@ export function bindHeader(
   const scanning = h('div', { class: 'ih-header__scanning' });
   const rescan = button('extRescan', 'rescan', 'refresh');
   const scroll = button('extAutoScroll', 'scroll', 'scroll');
+  const scrollText = scroll.querySelector<HTMLElement>('.ih-button__text')!;
+  const filterToggle = button('extFilters', 'filters', 'filter');
+  filterToggle.classList.add('ih-header__filter-toggle');
+  filterToggle.setAttribute('aria-controls', filters.id);
+  filterToggle.setAttribute('aria-expanded', 'false');
+  const showFilters = (visible: boolean): void => {
+    filters.classList.toggle('is-open', visible);
+    filterToggle.setAttribute('aria-expanded', String(visible));
+  };
   const selected = button('extDownloadSelected', 'download', 'download', true);
   const arrow = iconButton('extDownloadMenu', 'menu', 'chevron-down');
   arrow.setAttribute('aria-expanded', 'false');
-  const menu = h(
+  const items = h(
     'div',
-    { class: 'ih-download-menu' },
-    arrow,
-    h(
-      'div',
-      { class: 'ih-download-menu__items', attr: { hidden: true } },
-      button('extDownloadAll', 'all'),
-      button('extDownloadFiltered', 'filtered'),
-    ),
+    { class: 'ih-download-menu__items', attr: { hidden: true } },
+    button('extDownloadAll', 'all'),
+    button('extDownloadFiltered', 'filtered'),
   );
+  const menu = h('div', { class: 'ih-download-menu' }, arrow, items);
+  const closeMenu = () => {
+    items.hidden = true;
+    arrow.setAttribute('aria-expanded', 'false');
+  };
   root.replaceChildren(
     h('div', { class: 'ih-header__brand' }, icon('logo', 20), h('span', { text: t('extBrand') })),
     h('div', { class: 'ih-header__page' }, h('div', {}, title, url)),
-    h('div', {}, stats, scanning),
+    h('div', { class: 'ih-header__status' }, stats, scanning),
     h(
       'div',
       { class: 'ih-header__actions' },
       rescan,
       scroll,
+      filterToggle,
       h('div', { class: 'ih-download-segment' }, selected, menu),
       iconButton('optTitle', 'options', 'settings'),
     ),
@@ -52,9 +63,9 @@ export function bindHeader(
   const selectedText = h('span', { class: 'ih-selectionbar__count' });
   selection.replaceChildren(
     selectedText,
-    button('extSelectAll', 'select-all'),
-    button('extInvert', 'invert'),
-    button('extClear', 'clear'),
+    button('extSelectAll', 'select-all', 'check'),
+    button('extInvert', 'invert', 'invert'),
+    button('extClear', 'clear', 'close'),
     button('extDownloadOne', 'download', 'download', true),
     button('extCopyLinks', 'copy', 'copy'),
     button('extRemove', 'remove', 'trash'),
@@ -73,10 +84,13 @@ export function bindHeader(
     scanning.textContent = s.scanning ? t('extScanning', { frames: s.page.frames.length }) : '';
     rescan.disabled = s.scanning || s.autoScrolling;
     scroll.disabled = s.scanning;
-    scroll.replaceChildren(t(s.autoScrolling ? 'extStopScroll' : 'extAutoScroll'));
+    const scrollLabel = t(s.autoScrolling ? 'extStopScroll' : 'extAutoScroll');
+    scrollText.textContent = scrollLabel;
+    scroll.setAttribute('aria-label', scrollLabel);
+    scroll.title = scrollLabel;
     selected.disabled = !s.selected.size || s.scanning || s.autoScrolling;
-    arrow.disabled = selected.disabled;
-    if (arrow.disabled) menu.querySelector<HTMLElement>('.ih-download-menu__items')!.hidden = true;
+    arrow.disabled = s.scanning || s.autoScrolling || !s.images.length;
+    if (arrow.disabled) closeMenu();
     selected.title = t(s.selected.size ? 'extDownloadSelected' : 'extSelectFirst');
     selection.hidden = !s.selected.size;
     selection.dataset.count = String(s.selected.size);
@@ -84,13 +98,12 @@ export function bindHeader(
       count: s.selected.size,
       size: formatBytes(d.selectedBytes),
     });
-    menu.querySelectorAll<HTMLButtonElement>('.ih-download-menu__items button').forEach((b) => {
-      b.disabled = s.scanning || s.autoScrolling || !s.images.length;
+    items.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
+      b.disabled = arrow.disabled || (b.dataset.action === 'filtered' && !d.visible.length);
     });
   };
   const handler = (e: Event, el: HTMLElement): void => {
     e.preventDefault();
-    const items = menu.querySelector<HTMLElement>('.ih-download-menu__items')!;
     if (el.dataset.action === 'menu') {
       items.hidden = !items.hidden;
       arrow.setAttribute('aria-expanded', String(!items.hidden));
@@ -103,6 +116,7 @@ export function bindHeader(
     if (action === 'rescan') command('extract:rescan');
     if (action === 'scroll') command(s.autoScrolling ? 'page:stopscroll' : 'page:autoscroll');
     if (action === 'options') command('options');
+    if (action === 'filters') showFilters(!filters.classList.contains('is-open'));
     if (action === 'copy-page') void copyLinks(s.page.url);
     if (action === 'download') download(images);
     if (action === 'all') download(s.images);
@@ -112,8 +126,7 @@ export function bindHeader(
     if (action === 'clear') clearSelection();
     if (action === 'remove') removeSelected();
     if (action === 'copy') void copyLinks(images.map((i) => i.url).join('\n'));
-    items.hidden = true;
-    arrow.setAttribute('aria-expanded', 'false');
+    closeMenu();
   };
   const off = [
     delegate(root, '[data-action]', 'click', handler),
@@ -121,5 +134,8 @@ export function bindHeader(
     store.subscribe(render),
   ];
   render();
-  return () => off.forEach((fn) => fn());
+  return {
+    showFilters,
+    dispose: () => off.forEach((fn) => fn()),
+  };
 }

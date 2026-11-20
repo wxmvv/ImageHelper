@@ -1,7 +1,7 @@
 import { h } from '../../ui/dom.ts';
 export function createLayout(root: HTMLElement) {
   const header = h('header', { class: 'ih-header' });
-  const filters = h('div', { class: 'ih-filters' });
+  const filters = h('div', { class: 'ih-filters', attr: { id: 'filters' } });
   const grid = h('main', { class: 'ih-grid', attr: { id: 'grid' } });
   const loaded = h('div', { class: 'ih-loaded', attr: { role: 'status' } });
   const selection = h('footer', { class: 'ih-selectionbar', attr: { hidden: true } });

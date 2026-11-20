@@ -83,6 +83,31 @@ test('alignExtension trusts the response mime over the URL hint', () => {
   assert.equal(alignExtension('photo.jpg', 'image/svg+xml'), 'photo.svg');
 });
 
+test('preparing one file supplies its actual MIME type and filename to the mobile save control', async (context) => {
+  const fake = fakeExtension();
+  context.mock.method(globalThis, 'fetch', async () => {
+    return new Response('image bytes', { headers: { 'content-type': 'image/webp' } });
+  });
+  const files: { blob: Blob; name: string }[] = [];
+  const engine = new DownloadEngine(
+    'https://example.test/page',
+    () => {},
+    'Example',
+    (blob, name) => {
+      files.push({ blob, name });
+    },
+  );
+  const [image] = records(1);
+  assert.ok(image);
+  const result = await engine.run([image], 'files', '{name}.{ext}');
+  assert.deepEqual(result, { ok: [image.url], failed: [] });
+  assert.equal(files.length, 1);
+  assert.equal(files[0]?.name, '0.webp');
+  assert.equal(files[0]?.blob.type, 'image/webp');
+  assert.equal(await files[0]?.blob.text(), 'image bytes');
+  assert.equal(fake.calls.downloads.length, 0);
+});
+
 test('buildFileNames renders metadata, sanitizes names and resolves duplicates', () => {
   const input = records(2).map((record) => ({
     ...record,

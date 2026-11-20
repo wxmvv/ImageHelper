@@ -31,6 +31,7 @@ export function bindGrid(
     menu = undefined;
   };
   const action = (name: string, image: ImageRecord): void => {
+    if (name === 'preview') preview(image.id);
     if (name === 'download') download([image]);
     if (name === 'copy') void copyLinks(image.url);
     if (name === 'open') openImage(image.url);

@@ -9,7 +9,7 @@ import Cocoa
 import SafariServices
 import WebKit
 
-let extensionBundleIdentifier = "com.wxm.imagehelper.Extension"
+let extensionBundleIdentifier = "dev.wxmvv.ImageHelper.Extension"
 
 class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHandler {
 
@@ -40,6 +40,18 @@ class ViewController: NSViewController, WKNavigationDelegate, WKScriptMessageHan
                 }
             }
         }
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard navigationAction.navigationType == .linkActivated,
+              let url = navigationAction.request.url, url.scheme == "https" else {
+            decisionHandler(.allow)
+            return
+        }
+
+        // Keep the setup controls available while the default browser shows the policy.
+        NSWorkspace.shared.open(url)
+        decisionHandler(.cancel)
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
